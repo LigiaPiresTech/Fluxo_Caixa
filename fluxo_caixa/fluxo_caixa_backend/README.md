@@ -39,10 +39,8 @@ O API Gateway deve validar o JWT antes de encaminhar a requisição para a Lambd
 
 Para o cenário de pico, a API de Consolidado deve ser protegida contra sobrecarga e desacoplada do fluxo de lançamento.
 
-Para processamento assíncrono, recomenda-se:
+Para processamento assíncrono:
 EventBridge → SQS → Lambda Consolidado → RDS.
-
-O exemplo entregue nesta pasta contém o endpoint síncrono de consulta do consolidado. O workflow assíncrono deve ser implementado quando o requisito funcional de consolidação for fechado.
 
 ## Importante
 
