@@ -1,4 +1,4 @@
-# Backend — Sistema de Fluxo de Caixa
+# Backend — Sistema de Fluxo de Caixa:
 
 Backend de referência em Python/FastAPI, preparado para AWS Lambda + API Gateway + Cognito + RDS Proxy + PostgreSQL.
 
