@@ -42,6 +42,6 @@ npm run e2e
 
 ## Importante sobre o case
 
-O case exige que Lançamentos permaneça disponível quando Consolidado estiver indisponível, com persistência transacional, mensageria assíncrona, retentativas, idempotência e RPO zero para lançamentos. Os testes de resiliência dessa parte devem ser executados contra a infraestrutura AWS implantada, simulando indisponibilidade do consumidor e verificando que os lançamentos continuam sendo persistidos e que as mensagens pendentes são processadas após a recuperação.
+Lançamentos permanece disponível quando Consolidado estiver indisponível, com persistência transacional, mensageria assíncrona, retentativas, idempotência e RPO zero para lançamentos. Os testes de resiliência dessa parte devem ser executados contra a infraestrutura AWS implantada, simulando indisponibilidade do consumidor e verificando que os lançamentos continuam sendo persistidos e que as mensagens pendentes são processadas após a recuperação.
 
-A suíte atual também evidencia uma limitação do código-base entregue anteriormente: a autenticação Cognito/JWT é parcialmente preparada, mas a validação real das claims deve ocorrer no API Gateway e a autorização por perfil/escopo precisa estar integrada aos handlers antes do aceite de produção.
+A autenticação Cognito/JWT é parcialmente preparada, mas a validação real das claims deve ocorrer no API Gateway e a autorização por perfil/escopo precisa estar integrada aos handlers antes do aceite de produção.
