@@ -1,0 +1,8 @@
+fastapi
+mangum
+sqlalchemy
+psycopg[binary]
+pydantic
+pydantic-settings
+email-validator
+boto3

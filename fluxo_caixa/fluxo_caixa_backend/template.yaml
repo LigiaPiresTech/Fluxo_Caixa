@@ -1,0 +1,164 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Backend do Sistema de Fluxo de Caixa - 6 APIs Python/Lambda
+
+Parameters:
+  CognitoIssuer:
+    Type: String
+    Description: URL do issuer do Cognito User Pool
+  CognitoAudience:
+    Type: String
+    Description: Audience/App Client ID aceito pelo JWT authorizer
+  DatabaseUrlSecretArn:
+    Type: String
+    Description: ARN do Secrets Manager contendo a DATABASE_URL ou credencial usada pela aplicação
+
+Globals:
+  Function:
+    Runtime: python3.13
+    Timeout: 15
+    MemorySize: 512
+    Tracing: Active
+    Environment:
+      Variables:
+        AWS_REGION: !Ref AWS::Region
+        ENVIRONMENT: prod
+    VpcConfig:
+      SecurityGroupIds:
+        - sg-REPLACE-ME
+      SubnetIds:
+        - subnet-REPLACE-ME-A
+        - subnet-REPLACE-ME-B
+
+Resources:
+
+  Api:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: prod
+      CorsConfiguration:
+        AllowOrigins:
+          - https://REPLACE-ME.example.com
+        AllowHeaders:
+          - Authorization
+          - Content-Type
+          - X-Request-ID
+        AllowMethods:
+          - GET
+          - POST
+          - PUT
+          - PATCH
+          - DELETE
+      Auth:
+        Authorizers:
+          CognitoJwt:
+            JwtConfiguration:
+              issuer: !Ref CognitoIssuer
+              audience:
+                - !Ref CognitoAudience
+            Identity:
+              Headers:
+                - Authorization
+        DefaultAuthorizer: CognitoJwt
+
+  UsuariosFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: api_usuarios.handler.handler
+      Policies:
+        - AWSSecretsManagerGetSecretValuePolicy:
+            SecretArn: !Ref DatabaseUrlSecretArn
+      Events:
+        Api:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref Api
+            Path: /usuarios/{proxy+}
+            Method: ANY
+
+  CadastrosFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: api_cadastros.handler.handler
+      Policies:
+        - AWSSecretsManagerGetSecretValuePolicy:
+            SecretArn: !Ref DatabaseUrlSecretArn
+      Events:
+        Api:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref Api
+            Path: /cadastros/{proxy+}
+            Method: ANY
+
+  ContasFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: api_contas.handler.handler
+      Policies:
+        - AWSSecretsManagerGetSecretValuePolicy:
+            SecretArn: !Ref DatabaseUrlSecretArn
+      Events:
+        Api:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref Api
+            Path: /contas/{proxy+}
+            Method: ANY
+
+  LancamentosFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: api_lancamentos.handler.handler
+      ReservedConcurrentExecutions: 100
+      Policies:
+        - AWSSecretsManagerGetSecretValuePolicy:
+            SecretArn: !Ref DatabaseUrlSecretArn
+      Events:
+        Api:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref Api
+            Path: /lancamentos/{proxy+}
+            Method: ANY
+
+  ConsolidadoFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: api_consolidado.handler.handler
+      ReservedConcurrentExecutions: 100
+      Policies:
+        - AWSSecretsManagerGetSecretValuePolicy:
+            SecretArn: !Ref DatabaseUrlSecretArn
+      Events:
+        Api:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref Api
+            Path: /consolidado/{proxy+}
+            Method: ANY
+
+  RelatoriosFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: api_relatorios.handler.handler
+      Policies:
+        - AWSSecretsManagerGetSecretValuePolicy:
+            SecretArn: !Ref DatabaseUrlSecretArn
+      Events:
+        Api:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref Api
+            Path: /relatorios/{proxy+}
+            Method: ANY
+
+Outputs:
+  ApiEndpoint:
+    Value: !Sub https://${Api}.execute-api.${AWS::Region}.amazonaws.com/prod
